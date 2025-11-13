@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { NavLink } from "react-router-dom"
-import { Bird, Menu, X, Search, ShoppingCart, UserRound } from "lucide-react"
+import { Bird, Menu, X, Search, ShoppingCart, UserRound, Angry } from "lucide-react"
 import { useCartCount } from "@/store/cart"
 
 export default function Navbar() {
@@ -45,7 +45,7 @@ export default function Navbar() {
             aria-label="Mi cuenta"
             title="Mi cuenta"
           >
-            <UserRound className="size-5" />
+            <Angry className="size-5" />
           </NavLink>
 
           <NavLink
