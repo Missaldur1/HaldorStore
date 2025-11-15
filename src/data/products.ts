@@ -1,6 +1,12 @@
 import type { Product } from "@/types/product"
 import hoodieRunico from "@/assets/products/hoodie-runico.webp"
-import otra from "@/assets/products/otra.webp"
+import bts_vik from "@/assets/products/bts_vik.webp"
+import gorra_valknut from "@/assets/products/gorra_valknut.webp"
+import anillo_odin from "@/assets/products/anillo_odin.webp"
+import cinturon_vikingo from "@/assets/products/cinturon_vikingo.webp"
+import polera_barco from "@/assets/products/polera_barco.jpeg"
+import moch_vik from "@/assets/products/moch_vik.jpg"
+import mapa_midgard from "@/assets/products/mapa_midgard.jpg"
 export const PRODUCTS: Product[] = [
   {
     id: "p1",
@@ -19,7 +25,7 @@ export const PRODUCTS: Product[] = [
     material: "Algodón/Poliéster",
     color: "Negro carbón",
     origin: "Importado",
-    images: [hoodieRunico] // si quieres, luego puedes agregar 2–3 más
+    images: [hoodieRunico] // para agregar 2-3 más
   },
   {
     id: "p2",
@@ -27,12 +33,13 @@ export const PRODUCTS: Product[] = [
     name: "Polera Longship",
     price: 14990,
     currency: "CLP",
-    image: otra,
+    image: polera_barco,
     category: "Ropa",
     stock: 40,
     rating: 4.5,
     featured: true,
-    tags: ["verano","barco"]
+    tags: ["verano","barco"],
+    description: "Polera longship con acabados nordicos y estampado de alta calidad"
   },
   {
     id: "p3",
@@ -40,9 +47,9 @@ export const PRODUCTS: Product[] = [
     name: "Gorra Valknut",
     price: 9990,
     currency: "CLP",
-    image: "https://source.unsplash.com/800x600/?cap,black,minimal",
+    image: gorra_valknut,
     category: "Accesorios",
-    stock: 60,
+    stock: 59,
     rating: 4.4,
     featured: true,
     tags: ["valknut"]
@@ -53,7 +60,7 @@ export const PRODUCTS: Product[] = [
     name: "Cinturón Forjado",
     price: 12990,
     currency: "CLP",
-    image: "https://source.unsplash.com/800x600/?leather,belt,craft",
+    image: cinturon_vikingo,
     category: "Accesorios",
     stock: 18,
     rating: 4.3,
@@ -65,7 +72,7 @@ export const PRODUCTS: Product[] = [
     name: "Botas del Norte",
     price: 49990,
     currency: "CLP",
-    image: "https://source.unsplash.com/800x600/?boots,leather,brown",
+    image: bts_vik,
     category: "Calzado",
     stock: 12,
     rating: 4.6,
@@ -77,7 +84,7 @@ export const PRODUCTS: Product[] = [
     name: "Anillo de Odín",
     price: 19990,
     currency: "CLP",
-    image: "https://source.unsplash.com/800x600/?ring,silver,minimal",
+    image: anillo_odin,
     category: "Joyería",
     stock: 35,
     rating: 4.8,
@@ -89,7 +96,7 @@ export const PRODUCTS: Product[] = [
     name: "Mochila Escudo",
     price: 25990,
     currency: "CLP",
-    image: "https://source.unsplash.com/800x600/?backpack,black,urban",
+    image: moch_vik,
     category: "Accesorios",
     stock: 22,
     rating: 4.2
@@ -100,9 +107,13 @@ export const PRODUCTS: Product[] = [
     name: "Póster Mapa de Midgard",
     price: 8990,
     currency: "CLP",
-    image: "https://source.unsplash.com/800x600/?poster,map,wall",
+    image: mapa_midgard,
     category: "Decoración",
     stock: 50,
-    rating: 4.1
+    rating: 4.0,
+    longDescription: "Mapa inspirado en las leyendas sobre Midgard.",
+    material: "Papel fotográfico",
+    color: "Mapa Midgard",
+    origin: "Creación propia"
   }
 ]
