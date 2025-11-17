@@ -1,4 +1,6 @@
+import { useState } from "react"
 import { Routes, Route } from "react-router-dom"
+
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import Home from "./pages/Home"
@@ -10,11 +12,18 @@ import ProductDetail from "./pages/ProductDetail"
 import CartPage from "./pages/Cart"
 import Checkout from "./pages/Checkout"
 import OrderReceipt from "./pages/OrderReceipt"
+import AuthModal from "./components/AuthModal"
 
 export default function App() {
+  const [authOpen, setAuthOpen] = useState(false)
+
   return (
     <div className="min-h-dvh flex flex-col bg-[#0f1316] text-stone-100">
-      <Navbar />
+
+      {/* NAVBAR */}
+      <Navbar onOpenAuth={() => setAuthOpen(true)} />
+
+      {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 mx-auto max-w-6xl px-4 py-6 w-full">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -27,8 +36,15 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+
       <Footer />
       <ScrollTop />
+
+      {/* MODAL DE LOGIN / REGISTRO */}
+      <AuthModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+      />
     </div>
   )
 }
