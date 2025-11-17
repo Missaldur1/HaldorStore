@@ -15,7 +15,6 @@ interface AuthState {
   refresh: string | null;
   isAuthenticated: boolean;
 
-  // Acciones
   login: (email: string, password: string) => Promise<void>;
   register: (data: {
     first_name: string;
@@ -39,10 +38,12 @@ export const useAuthStore = create<AuthState>()(
       async login(email, password) {
         const res = await apiLogin(email, password);
 
+        const user = res.user; // <<< FIX
         const access = res.tokens.access;
         const refresh = res.tokens.refresh;
 
         set({
+          user,
           access,
           refresh,
           isAuthenticated: true,
@@ -73,13 +74,12 @@ export const useAuthStore = create<AuthState>()(
           refresh: null,
           isAuthenticated: false,
         });
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
-        localStorage.removeItem("user");
+
+        localStorage.removeItem("auth-storage");
       },
     }),
     {
-      name: "auth-storage", // nombre del storage en localStorage
+      name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
         access: state.access,
