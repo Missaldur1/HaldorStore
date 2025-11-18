@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { Navigate, NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Bird,
   Menu,
@@ -41,6 +42,7 @@ function UserAvatar({ name }: { name: string }) {
 export default function Navbar({ onOpenAuth }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const cartCount = useCartCount();
 
@@ -148,7 +150,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                     rounded-xl shadow-xl py-2 z-[999]
                   "
                 >
-                  <button className="w-full text-left px-4 py-2 text-sm text-stone-300 hover:bg-stone-700/40">
+                  <button
+                    onClick={() => {
+                      navigate("/account");
+                      setUserMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-stone-300 hover:bg-stone-700/40 transition"
+                  >
                     Mi Perfil
                   </button>
 
@@ -221,7 +229,14 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                 </button>
               ) : (
                 <>
-                  <button className="w-full h-11 rounded-lg border border-stone-700/60 bg-stone-900/60 flex items-center justify-start gap-3 px-4 text-stone-300 hover:bg-white/10">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      navigate("/account");
+                    }}
+                    className="w-full h-11 rounded-lg border border-stone-700/60 bg-stone-900/60 flex 
+                      items-center justify-start gap-3 px-4 text-stone-300 hover:bg-white/10"
+                  >
                     <UserRound className="size-5" />
                     Mi Perfil
                   </button>

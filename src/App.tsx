@@ -13,6 +13,7 @@ import CartPage from "./pages/Cart"
 import Checkout from "./pages/Checkout"
 import OrderReceipt from "./pages/OrderReceipt"
 import AuthModal from "./components/AuthModal"
+import Account from "./pages/Account";
 
 export default function App() {
   const [authOpen, setAuthOpen] = useState(false)
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order/:id" element={<OrderReceipt />} />
+          <Route path="/account" element={<Account />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
