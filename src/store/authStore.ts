@@ -5,8 +5,8 @@ import { login as apiLogin, register as apiRegister } from "@/services/authServi
 interface User {
   id: number;
   email: string;
-  first_name?: string;
-  last_name?: string;
+  first_name: string;
+  last_name: string;
 }
 
 interface AuthState {
@@ -23,50 +23,49 @@ interface AuthState {
     password: string;
     password2: string;
   }) => Promise<void>;
+
+  updateUser: (user: User) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       access: null,
       refresh: null,
       isAuthenticated: false,
 
-      // -------- LOGIN --------
+      // LOGIN
       async login(email, password) {
         const res = await apiLogin(email, password);
 
-        const user = res.user; // <<< FIX
-        const access = res.tokens.access;
-        const refresh = res.tokens.refresh;
-
         set({
-          user,
-          access,
-          refresh,
+          user: res.user,
+          access: res.tokens.access,
+          refresh: res.tokens.refresh,
           isAuthenticated: true,
         });
       },
 
-      // -------- REGISTER --------
+      // REGISTER
       async register(data) {
         const res = await apiRegister(data);
 
-        const user = res.user;
-        const access = res.tokens.access;
-        const refresh = res.tokens.refresh;
-
         set({
-          user,
-          access,
-          refresh,
+          user: res.user,
+          access: res.tokens.access,
+          refresh: res.tokens.refresh,
           isAuthenticated: true,
         });
       },
 
-      // -------- LOGOUT --------
+      // ACTUALIZAR PERFIL
+      updateUser(user) {
+        set({ user });
+      },
+
+      // LOGOUT
       logout() {
         set({
           user: null,
