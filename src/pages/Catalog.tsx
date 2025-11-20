@@ -14,9 +14,10 @@ import { useCart } from "@/store/cart"
 import { toast } from "sonner"
 import { usePageTitle } from "@/hooks/useDocumentTitle"
 
-const FALLBACK_IMG = "https://placehold.co/800x600/111315/ffffff?text=HaldorStore"
+const FALLBACK_IMG =
+  "https://placehold.co/800x600/111315/ffffff?text=HaldorStore"
 
-// pequeño hook de debounce para el buscador
+// pequeño hook para debounce
 function useDebounced<T>(value: T, ms = 300) {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
@@ -30,7 +31,8 @@ type SortKey = "relevance" | "rating" | "priceAsc" | "priceDesc" | "nameAsc"
 
 export default function Catalog() {
   usePageTitle("Catálogo")
-  // URL state
+
+  // URL params
   const [params, setParams] = useSearchParams()
 
   // UI state
@@ -63,10 +65,10 @@ export default function Catalog() {
       .finally(() => setLoading(false))
   }, [])
 
-  // categorías derivadas
+  // categorías derivadas desde category.name
   const categories = useMemo(() => {
     const set = new Set<string>(["Todas"])
-    all.forEach(p => set.add(p.category))
+    all.forEach((p) => set.add(p.category.name))
     return Array.from(set)
   }, [all])
 
@@ -74,16 +76,21 @@ export default function Catalog() {
   const filtered = useMemo(() => {
     const t = debouncedQuery.trim().toLowerCase()
 
-    let arr = all.filter(p => {
-      const inCat = catParam === "Todas" ? true : p.category === catParam
+    let arr = all.filter((p) => {
+      const inCat =
+        catParam === "Todas" ? true : p.category.name === catParam
+
       const inText =
         !t ||
         p.name.toLowerCase().includes(t) ||
         p.slug.toLowerCase().includes(t) ||
-        p.tags?.some(tag => tag.toLowerCase().includes(t))
+        p.category.name.toLowerCase().includes(t) ||
+        p.tags?.some((tag) => tag.toLowerCase().includes(t))
+
       const priceOk =
         (!minParam || p.price >= Number(minParam)) &&
         (!maxParam || p.price <= Number(maxParam))
+
       return inCat && inText && priceOk
     })
 
@@ -92,32 +99,33 @@ export default function Catalog() {
       case "rating":
         arr = arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
         break
+
       case "priceAsc":
         arr = arr.sort((a, b) => a.price - b.price)
         break
+
       case "priceDesc":
         arr = arr.sort((a, b) => b.price - a.price)
         break
+
       case "nameAsc":
         arr = arr.sort((a, b) => a.name.localeCompare(b.name))
         break
+
       case "relevance":
-      default: {
-        // “pseudo relevancia”: coincidencia por texto > rating
+      default:
         arr = arr
-          .map(p => {
-            const scoreText =
-              debouncedQuery.trim()
-                ? (p.name.toLowerCase().includes(t) ? 2 : 0) +
-                  (p.tags?.some(tag => tag.toLowerCase().includes(t)) ? 1 : 0)
-                : 0
-            const score = scoreText * 10 + (p.rating ?? 0)
-            return { p, score }
+          .map((p) => {
+            const scoreText = t
+              ? (p.name.toLowerCase().includes(t) ? 2 : 0) +
+                (p.category.name.toLowerCase().includes(t) ? 1 : 0) +
+                (p.tags?.some((tag) => tag.toLowerCase().includes(t)) ? 1 : 0)
+              : 0
+
+            return { p, score: scoreText * 10 + (p.rating ?? 0) }
           })
           .sort((a, b) => b.score - a.score)
           .map(({ p }) => p)
-        break
-      }
     }
 
     return arr
@@ -127,32 +135,36 @@ export default function Catalog() {
   const PAGE_SIZE = 9
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const page = Math.min(Math.max(1, pageParam), pageCount)
-  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const pageItems = filtered.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  )
 
-  // sincronizar query params cuando cambie algo
+  // sincronizar URL params
   useEffect(() => {
     const next = new URLSearchParams(params)
-    // search
+
     if (debouncedQuery) next.set("search", debouncedQuery)
     else next.delete("search")
-    // cat
+
     if (catParam && catParam !== "Todas") next.set("category", catParam)
     else next.delete("category")
-    // price
+
     if (minPrice) next.set("min", String(Number(minPrice)))
     else next.delete("min")
+
     if (maxPrice) next.set("max", String(Number(maxPrice)))
     else next.delete("max")
-    // sort
+
     if (sort !== "relevance") next.set("sort", sort)
     else next.delete("sort")
-    // reset page si cambian filtros/búsqueda
+
     next.set("page", String(page))
+
     setParams(next, { replace: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, catParam, minPrice, maxPrice, sort, page])
 
-  // helpers para cambiar params
+  // cambiar categoría
   const setCategory = (c: string) => {
     const next = new URLSearchParams(params)
     if (c === "Todas") next.delete("category")
@@ -162,22 +174,27 @@ export default function Catalog() {
     setMobileOpen(false)
   }
 
+  // aplicar precios
   const applyPrice = () => {
     const next = new URLSearchParams(params)
-    minPrice ? next.set("min", String(Number(minPrice))) : next.delete("min")
-    maxPrice ? next.set("max", String(Number(maxPrice))) : next.delete("max")
+    minPrice
+      ? next.set("min", String(Number(minPrice)))
+      : next.delete("min")
+    maxPrice
+      ? next.set("max", String(Number(maxPrice)))
+      : next.delete("max")
     next.set("page", "1")
     setParams(next)
     setMobileOpen(false)
   }
 
+  // limpiar filtros
   const clearAll = () => {
     setQuery("")
     setMinPrice("")
     setMaxPrice("")
     setSort("relevance")
-    const next = new URLSearchParams()
-    setParams(next)
+    setParams(new URLSearchParams())
   }
 
   return (
@@ -185,7 +202,7 @@ export default function Catalog() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-extrabold tracking-tight">Catálogo</h1>
 
-        {/* barra superior: buscador + ordenar + botón filtros en móvil */}
+        {/* barra superior */}
         <div className="flex items-center gap-2">
           <div className="relative w-64 max-w-[70vw]">
             <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -200,9 +217,8 @@ export default function Catalog() {
 
           <SortSelect sort={sort} onChange={setSort} />
 
-          {/* móvil */}
           <button
-            className="sm:hidden inline-flex items-center gap-2 h-10 rounded-lg border border-stone-700/60 px-3 text-sm hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+            className="sm:hidden inline-flex items-center gap-2 h-10 rounded-lg border border-stone-700/60 px-3 text-sm hover:bg-white/10"
             onClick={() => setMobileOpen(true)}
           >
             <SlidersHorizontal className="size-4" />
@@ -213,7 +229,6 @@ export default function Catalog() {
 
       {/* layout: filtros + grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[280px,1fr] gap-4">
-        {/* Panel de filtros (desktop) */}
         <aside className="hidden lg:block">
           <FilterPanel
             categories={categories}
@@ -229,7 +244,7 @@ export default function Catalog() {
           />
         </aside>
 
-        {/* Grid */}
+        {/* grid de productos */}
         <div className="min-w-0">
           {loading ? (
             <SkeletonGrid />
@@ -240,7 +255,8 @@ export default function Catalog() {
           ) : (
             <>
               <div className="text-xs text-stone-400 mb-2">
-                {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
+                {filtered.length} resultado
+                {filtered.length !== 1 ? "s" : ""}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -249,7 +265,6 @@ export default function Catalog() {
                 ))}
               </div>
 
-              {/* paginación */}
               {pageCount > 1 && (
                 <Pagination
                   page={page}
@@ -258,7 +273,6 @@ export default function Catalog() {
                     const next = new URLSearchParams(params)
                     next.set("page", String(p))
                     setParams(next)
-                    // scroll a top del grid
                     window.scrollTo({ top: 0, behavior: "smooth" })
                   }}
                 />
@@ -268,7 +282,6 @@ export default function Catalog() {
         </div>
       </div>
 
-      {/* Drawer móvil de filtros */}
       {mobileOpen && (
         <MobileDrawer onClose={() => setMobileOpen(false)}>
           <FilterPanel
@@ -289,7 +302,9 @@ export default function Catalog() {
   )
 }
 
-/* ============= Componentes auxiliares ============= */
+/* ============================================================
+   Componentes auxiliares
+============================================================ */
 
 function SortSelect({
   sort,
@@ -304,7 +319,6 @@ function SortSelect({
         value={sort}
         onChange={(e) => onChange(e.target.value as SortKey)}
         className="appearance-none h-10 rounded-lg border border-stone-700/60 bg-stone-900/60 pl-3 pr-8 text-sm outline-none focus:ring-2 focus:ring-amber-400/60"
-        aria-label="Ordenar"
       >
         <option value="relevance">Relevancia</option>
         <option value="rating">Más populares</option>
@@ -312,12 +326,23 @@ function SortSelect({
         <option value="priceDesc">Mayor precio</option>
         <option value="nameAsc">Nombre A–Z</option>
       </select>
-      <ChevronDown className="size-4 pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-stone-400" />
+      <ChevronDown className="size-4 absolute right-2 top-1/2 -translate-y-1/2 text-stone-400" />
     </div>
   )
 }
 
-function FilterPanel(props: {
+function FilterPanel({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+  minPrice,
+  maxPrice,
+  setMinPrice,
+  setMaxPrice,
+  applyPrice,
+  clearAll,
+  resultCount,
+}: {
   categories: string[]
   selectedCategory: string
   onSelectCategory: (c: string) => void
@@ -329,19 +354,6 @@ function FilterPanel(props: {
   clearAll: () => void
   resultCount: number
 }) {
-  const {
-    categories,
-    selectedCategory,
-    onSelectCategory,
-    minPrice,
-    maxPrice,
-    setMinPrice,
-    setMaxPrice,
-    applyPrice,
-    clearAll,
-    resultCount,
-  } = props
-
   return (
     <div className="rounded-2xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 to-slate-900/70 p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -354,7 +366,7 @@ function FilterPanel(props: {
         </button>
       </div>
 
-      {/* Categorías */}
+      {/* categorías */}
       <div>
         <div className="text-xs text-stone-400 mb-2">Categorías</div>
         <div className="flex flex-wrap gap-2">
@@ -378,30 +390,32 @@ function FilterPanel(props: {
         </div>
       </div>
 
-      {/* Precio */}
+      {/* precio */}
       <div>
         <div className="text-xs text-stone-400 mb-2">Precio (CLP)</div>
         <div className="grid grid-cols-2 gap-2">
           <input
             inputMode="numeric"
-            pattern="[0-9]*"
             placeholder="Mín"
             value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value.replace(/\D/g, ""))}
-            className="h-10 rounded-lg border border-stone-700/60 bg-stone-900/60 px-3 text-sm outline-none focus:ring-2 focus:ring-amber-400/60"
+            onChange={(e) =>
+              setMinPrice(e.target.value.replace(/\D/g, ""))
+            }
+            className="h-10 rounded-lg border border-stone-700/60 bg-stone-900/60 px-3 text-sm outline-none"
           />
           <input
             inputMode="numeric"
-            pattern="[0-9]*"
             placeholder="Máx"
             value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value.replace(/\D/g, ""))}
-            className="h-10 rounded-lg border border-stone-700/60 bg-stone-900/60 px-3 text-sm outline-none focus:ring-2 focus:ring-amber-400/60"
+            onChange={(e) =>
+              setMaxPrice(e.target.value.replace(/\D/g, ""))
+            }
+            className="h-10 rounded-lg border border-stone-700/60 bg-stone-900/60 px-3 text-sm outline-none"
           />
         </div>
         <button
           onClick={applyPrice}
-          className="mt-2 h-9 w-full rounded-lg bg-amber-500 text-black text-sm font-semibold hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-amber-400/70"
+          className="mt-2 h-9 w-full rounded-lg bg-amber-500 text-black text-sm font-semibold hover:brightness-95"
         >
           Aplicar
         </button>
@@ -415,26 +429,28 @@ function FilterPanel(props: {
 function ProductCard({ product }: { product: Product }) {
   const [src, setSrc] = useState(product.image)
   const addItem = useCart((s) => s.addItem)
+
   return (
-    <article className="group rounded-xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 to-slate-900/70 overflow-hidden transition-colors hover:border-amber-500/40">
+    <article className="group rounded-xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 to-slate-900/70 overflow-hidden hover:border-amber-500/40">
       <Link to={`/product/${product.slug}`} className="block">
         <div className="relative">
           <img
             src={src}
             alt={product.name}
-            loading="lazy"
-            referrerPolicy="no-referrer"
             onError={() => setSrc(FALLBACK_IMG)}
-            className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] bg-stone-800"
+            className="aspect-[4/3] w-full object-cover transition-all duration-300 group-hover:scale-[1.03]"
           />
-          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-amber-500 via-sky-500 to-stone-500 opacity-70" />
         </div>
       </Link>
 
       <div className="p-4">
-        <Link to={`/product/${product.slug}`} className="font-semibold hover:underline">
+        <Link
+          to={`/product/${product.slug}`}
+          className="font-semibold hover:underline"
+        >
           {product.name}
         </Link>
+
         <p className="mt-1 text-sm text-stone-300/90">
           {product.currency === "CLP"
             ? `$${product.price.toLocaleString("es-CL")}`
@@ -444,17 +460,20 @@ function ProductCard({ product }: { product: Product }) {
         <div className="mt-3 flex items-center gap-2">
           <button
             type="button"
-            className="mt-3 w-full rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-black hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-amber-400/70 cursor-pointer"
-            onClick={() => { addItem(product, 1)
-            toast.success("Agregado al carrito", { description: product.name })
-            
+            className="mt-3 w-full rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-black hover:brightness-95"
+            onClick={() => {
+              addItem(product, 1)
+              toast.success("Agregado al carrito", {
+                description: product.name,
+              })
             }}
           >
             Agregar al carrito
           </button>
+
           <Link
             to={`/product/${product.slug}`}
-            className="rounded-lg border border-stone-700/60 px-3 py-2 text-sm hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/70"
+            className="rounded-lg border border-stone-700/60 px-3 py-2 text-sm hover:bg-white/10"
           >
             Ver
           </Link>
@@ -468,7 +487,10 @@ function SkeletonGrid() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 9 }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-stone-700/50 overflow-hidden">
+        <div
+          key={i}
+          className="rounded-xl border border-stone-700/50 overflow-hidden"
+        >
           <div className="aspect-[4/3] w-full bg-stone-800/80 animate-pulse" />
           <div className="p-4 space-y-2">
             <div className="h-4 w-1/2 bg-stone-700/70 rounded animate-pulse" />
@@ -483,11 +505,13 @@ function SkeletonGrid() {
 
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (
-    <div className="rounded-2xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 to-slate-900/70 p-6 text-center">
-      <p className="text-sm text-stone-300/90">No encontramos resultados con esos filtros.</p>
+    <div className="rounded-2xl border border-stone-700/50 bg-stone-900/70 p-6 text-center">
+      <p className="text-sm text-stone-300/90">
+        No encontramos resultados con esos filtros.
+      </p>
       <button
         onClick={onClear}
-        className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-black text-sm font-semibold hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-amber-400/70"
+        className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-black text-sm font-semibold hover:brightness-95"
       >
         Limpiar filtros
       </button>
@@ -504,15 +528,12 @@ function Pagination({
   pageCount: number
   onChange: (p: number) => void
 }) {
-  const canPrev = page > 1
-  const canNext = page < pageCount
-
   return (
     <div className="mt-6 flex items-center justify-center gap-2">
       <button
-        disabled={!canPrev}
+        disabled={page <= 1}
         onClick={() => onChange(page - 1)}
-        className="inline-flex items-center gap-1 rounded-lg border border-stone-700/60 px-3 py-2 text-sm disabled:opacity-50 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/70"
+        className="inline-flex items-center gap-1 rounded-lg border border-stone-700/60 px-3 py-2 text-sm disabled:opacity-50 hover:bg-white/10"
       >
         <ChevronLeft className="size-4" />
         Anterior
@@ -523,9 +544,9 @@ function Pagination({
       </span>
 
       <button
-        disabled={!canNext}
+        disabled={page >= pageCount}
         onClick={() => onChange(page + 1)}
-        className="inline-flex items-center gap-1 rounded-lg border border-stone-700/60 px-3 py-2 text-sm disabled:opacity-50 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/70"
+        className="inline-flex items-center gap-1 rounded-lg border border-stone-700/60 px-3 py-2 text-sm disabled:opacity-50 hover:bg-white/10"
       >
         Siguiente
         <ChevronRight className="size-4" />
@@ -534,8 +555,7 @@ function Pagination({
   )
 }
 
-/* ============= Drawer móvil genérico ============= */
-
+/* Drawer móvil */
 function MobileDrawer({
   children,
   onClose,
@@ -554,7 +574,7 @@ function MobileDrawer({
           <h3 className="text-sm font-semibold">Filtros</h3>
           <button
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-stone-700/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-stone-700/60 hover:bg-white/10"
           >
             <X className="size-4" />
           </button>
