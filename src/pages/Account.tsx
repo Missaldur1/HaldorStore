@@ -24,6 +24,14 @@ export default function Account() {
 
             <div className="grid gap-3">
                 <div className="p-4 rounded-lg bg-stone-900/40 border border-stone-700">
+                    <h2 className="font-semibold">Mi Información</h2>
+                    <p className="text-sm text-stone-300 mt-2">Toda tu información en un solo lugar</p>
+                    <div className="mt-3">
+                        <Link to="/orders" className="text-amber-400 hover:underline text-sm">Ir a Mi información</Link>
+                    </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-stone-900/40 border border-stone-700">
                     <h2 className="font-semibold">Órdenes</h2>
                     <p className="text-sm text-stone-300 mt-2">Aquí verás tus órdenes recientes.</p>
                     <div className="mt-3">
@@ -32,11 +40,23 @@ export default function Account() {
                 </div>
 
                 <div className="p-4 rounded-lg bg-stone-900/40 border border-stone-700">
+                    <h2 className="font-semibold">Mis Tarjetas</h2>
+                    <p className="text-sm text-stone-300 mt-2">Gestiona tus métodos de pago</p>
+                    <div className="mt-3">
+                        <Link to="/account/settings" className="text-amber-400 hover:underline text-sm">Ir a mis tarjetas</Link>
+                    </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-stone-900/40 border border-stone-700">
                     <h2 className="font-semibold">Ajustes</h2>
-                    <p className="text-sm text-stone-300 mt-2">Preferencias de la cuenta y métodos de pago.</p>
+                    <p className="text-sm text-stone-300 mt-2">Preferencias de la cuenta</p>
                     <div className="mt-3">
                         <Link to="/account/settings" className="text-amber-400 hover:underline text-sm">Ir a ajustes</Link>
                     </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-stone-900/40 border border-stone-700">
+                    <Link to="/" className="font-semibold text-amber-400 hover:underline text-sm">Cerrar Sesión</Link>
                 </div>
             </div>
         </section>
