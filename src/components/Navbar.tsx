@@ -160,7 +160,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                     Mi Perfil
                   </button>
 
-                  <button className="w-full text-left px-4 py-2 text-sm text-stone-300 hover:bg-stone-700/40">
+                  <button
+                    onClick={() => {
+                      navigate("/orders");
+                      setUserMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-stone-300 hover:bg-stone-700/40"
+                  >
                     Mis pedidos
                   </button>
 
@@ -241,7 +247,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                     Mi Perfil
                   </button>
 
-                  <button className="w-full h-11 rounded-lg border border-stone-700/60 bg-stone-900/60 flex items-center justify-start gap-3 px-4 text-stone-300 hover:bg-white/10">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      navigate("/orders");
+                    }}
+                    className="w-full h-11 rounded-lg border border-stone-700/60 bg-stone-900/60 flex items-center justify-start gap-3 px-4 text-stone-300 hover:bg-white/10"
+                  >
                     <ShoppingCart className="size-5" />
                     Mis pedidos
                   </button>

@@ -14,6 +14,10 @@ import OrderReceipt from "./pages/OrderReceipt"
 import AuthModal from "./components/AuthModal"
 import Account from "./pages/Account"
 import { AppErrorBoundary } from "./components/AppErrorBoundary"
+import OrdersPage from "./pages/Orders"
+import WebpayInit from "./pages/WebpayInit"
+import WebpayVoucher from "./pages/WebpayVoucher"
+import WebPayBankAuth from "./pages/WebpayBankAuth"
 
 export default function App() {
   const [authOpen, setAuthOpen] = useState(false)
@@ -38,6 +42,10 @@ export default function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order/:id" element={<OrderReceipt />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/webpay/init" element={<WebpayInit />} />
+            <Route path="/webpay/bank-auth" element={<WebPayBankAuth />} />
+            <Route path="/webpay/voucher" element={<WebpayVoucher />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
