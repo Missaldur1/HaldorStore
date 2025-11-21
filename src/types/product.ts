@@ -1,24 +1,25 @@
-// src/types/product.ts
 export type Product = {
-  id: string
+  id: number | string
   slug: string
   name: string
   price: number
   currency: "CLP" | "USD"
   image: string
-  category: string
+
+  category: {
+    id: number
+    name: string
+    slug: string
+  }
+
   stock: number
   rating?: number
   featured?: boolean
   tags?: string[]
-
-  // ---- campos opcionales para la ficha ----
   description?: string
-  longDescription?: string
+  long_description?: string
   material?: string
   color?: string
   origin?: string
-
-  // opcional: si algún día quieres galería real
   images?: string[]
 }

@@ -1,30 +1,69 @@
-import { PRODUCTS } from "@/data/products"
 import type { Product } from "@/types/product"
 
-const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
+const BACKEND_HOST = "http://127.0.0.1:8000"
+const API_URL = `${BACKEND_HOST}/api/catalog`
 
+async function apiGet<T>(endpoint: string): Promise<T> {
+  const res = await fetch(`${API_URL}${endpoint}`)
+  if (!res.ok) {
+    throw new Error(`Error al consultar ${endpoint}: ${res.status}`)
+  }
+  return res.json() as Promise<T>
+}
+
+// Normalizador
+function normalizeProduct(p: any): Product {
+  return {
+    ...p,
+    price: Number(p.price),
+    rating: p.rating ? Number(p.rating) : 0,
+    image: p.image
+      ? (p.image.startsWith("http")
+          ? p.image
+          : `${BACKEND_HOST}${p.image}`)
+      : "",
+    category: p.category,
+  }
+}
+
+/* ================================================================
+   LISTAR TODOS LOS PRODUCTOS
+================================================================ */
 export async function listAll(): Promise<Product[]> {
-  // simular red/latencia (opcional)
-  await delay(200)
-  return PRODUCTS
+  const res = await apiGet<any[]>("/products/")
+  return res.map(normalizeProduct)
 }
 
+/* ================================================================
+   LISTAR DESTACADOS
+================================================================ */
 export async function listFeatured(limit = 6): Promise<Product[]> {
-  await delay(200)
-  const featured = PRODUCTS.filter(p => p.featured)
-  return featured.slice(0, limit)
+  const res = await apiGet<any[]>("/products/?featured=true")
+  return res.map(normalizeProduct).slice(0, limit)
 }
 
+/* ================================================================
+   OBTENER PRODUCTO POR SLUG
+================================================================ */
 export async function getBySlug(slug: string): Promise<Product | undefined> {
-  await delay(150)
-  return PRODUCTS.find(p => p.slug === slug)
+  try {
+    const p = await apiGet<any>(`/products/${slug}/`)
+    return normalizeProduct(p)
+  } catch {
+    return undefined
+  }
 }
 
+/* ================================================================
+   BUSCAR POR TEXTO
+================================================================ */
 export async function searchByTerm(term: string): Promise<Product[]> {
-  await delay(150)
+  const all = await listAll()
   const t = term.trim().toLowerCase()
-  return PRODUCTS.filter(p =>
+
+  return all.filter((p) =>
     p.name.toLowerCase().includes(t) ||
-    p.tags?.some(tag => tag.toLowerCase().includes(t))
+    p.category.name.toLowerCase().includes(t) ||
+    p.slug.toLowerCase().includes(t)
   )
 }
