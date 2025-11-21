@@ -10,6 +10,7 @@ import ProductDetail from "./pages/ProductDetail"
 import CartPage from "./pages/Cart"
 import Checkout from "./pages/Checkout"
 import OrderReceipt from "./pages/OrderReceipt"
+import Account from "./pages/Account"
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:slug" element={<ProductDetail />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/about" element={<About />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order/:id" element={<OrderReceipt />} />

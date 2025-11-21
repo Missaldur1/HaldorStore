@@ -33,3 +33,6 @@ El propósito de este sistema es **aplicar los principios de la Ingeniería de R
 ---
  
 ## ⚙️ Instalación y ejecución
+
+- **Instalación npm** - 'npm install'
+- **Ejecución del servicio** - 'npm run dev'
