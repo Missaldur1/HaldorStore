@@ -140,29 +140,40 @@ function CategoryGrid() {
     fetchCategories()
   }, [])
 
-  // Si no hay categorías cargadas, mostrar las hardcodeadas
-  const displayCategories = categories.length > 0 ? categories : [
-    {
-      name: "Ropa",
-      href: "/catalog?category=Ropa",
-      img: "https://source.unsplash.com/800x600/?nordic,hoodie,black"
-    },
-    {
-      name: "Accesorios",
-      href: "/catalog?category=Accesorios", 
-      img: "https://source.unsplash.com/800x600/?leather,bracelet,black"
-    },
-    {
-      name: "Calzado",
-      href: "/catalog?category=Calzado",
-      img: "https://source.unsplash.com/800x600/?boots,leather,brown"
-    },
-    {
-      name: "Joyería", 
-      href: "/catalog?category=Joyería",
-      img: "https://source.unsplash.com/800x600/?ring,silver,minimal"
-    }
-  ]
+  const targetCategories = ["Ropa", "Accesorios", "Calzado", "Joyería"]
+
+  // Asegurar que todas las categorías tengan la propiedad href
+  const displayCategories = categories.length > 0 
+    ? categories
+        .filter(cat => targetCategories.includes(cat.name))
+        .slice(0, 4)
+        .map(cat => ({
+          ...cat,
+          href: `/catalog?category=${cat.name}`,
+          img: cat.image || "https://source.unsplash.com/800x600/?nordic,product"
+        }))
+    : [
+        {
+          name: "Ropa",
+          href: "/catalog?category=Ropa",
+          img: "https://source.unsplash.com/800x600/?nordic,hoodie,black"
+        },
+        {
+          name: "Accesorios",
+          href: "/catalog?category=Accesorios", 
+          img: "https://source.unsplash.com/800x600/?leather,bracelet,black"
+        },
+        {
+          name: "Calzado",
+          href: "/catalog?category=Calzado",
+          img: "https://source.unsplash.com/800x600/?boots,leather,brown"
+        },
+        {
+          name: "Joyería", 
+          href: "/catalog?category=Joyería",
+          img: "https://source.unsplash.com/800x600/?ring,silver,minimal"
+        }
+      ]
 
   return (
     <section aria-labelledby="heading-cats">
@@ -183,7 +194,7 @@ function CategoryGrid() {
               loading="lazy"
               referrerPolicy="no-referrer"
               onError={(e) => { 
-                (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800x600/1a1a1a/666666?text=Imagen+No+Disponible" 
+                (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG 
               }}
               className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] bg-stone-800"
             />

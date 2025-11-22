@@ -314,7 +314,9 @@ function DetailsTabs({ product }: { product: Product }) {
             <li>Material: {product.material ?? "Algodón/Poliéster"}</li>
             <li>Color: {product.color ?? "Negro carbón"}</li>
             <li>Origen: {product.origin ?? "Importado"}</li>
-            <li>Cuidado: Lavar en frío, secar a la sombra</li>
+            {product.category?.name === "Ropa" && (
+              <li>Cuidado: Lavar en frío, secar a la sombra</li>
+            )}
           </ul>
         )}
 
