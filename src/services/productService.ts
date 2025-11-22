@@ -11,7 +11,7 @@ async function apiGet<T>(endpoint: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
-// Normalizador
+// Normalizador productos
 function normalizeProduct(p: any): Product {
   return {
     ...p,
@@ -25,6 +25,27 @@ function normalizeProduct(p: any): Product {
     category: p.category,
   }
 }
+
+// Normalizador categoría
+function normalizeCategory(c: any) {
+  return {
+    ...c,
+    image: c.image
+      ? (c.image.startsWith("http")
+          ? c.image
+          : `${BACKEND_HOST}${c.image}`)
+      : null,
+  }
+}
+
+
+/* ================================================================
+   LISTAR TODAS LAS CATEGORÍAS
+================================================================ */
+export async function listCategories() { {
+  const res = await apiGet<any[]>("/categories/")
+  return res.map(normalizeCategory)
+} }
 
 /* ================================================================
    LISTAR TODOS LOS PRODUCTOS

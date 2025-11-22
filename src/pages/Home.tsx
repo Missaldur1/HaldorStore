@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { listCategories } from "@/services/productService"
 import { Link } from "react-router"
 import {
   ArrowRight,
@@ -124,7 +125,23 @@ function Usp({ icon, title, text }: { icon: React.ReactNode; title: string; text
 /* ============== CATEGORÍAS RÁPIDAS ============== */
 
 function CategoryGrid() {
-  const cats = [
+  const [categories, setCategories] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const cats = await listCategories()
+        setCategories(cats)
+      } catch (err) {
+        console.error("Error cargando categorías:", err)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
+  // Si no hay categorías cargadas, mostrar las hardcodeadas
+  const displayCategories = categories.length > 0 ? categories : [
     {
       name: "Ropa",
       href: "/catalog?category=Ropa",
@@ -132,7 +149,7 @@ function CategoryGrid() {
     },
     {
       name: "Accesorios",
-      href: "/catalog?category=Accesorios",
+      href: "/catalog?category=Accesorios", 
       img: "https://source.unsplash.com/800x600/?leather,bracelet,black"
     },
     {
@@ -141,7 +158,7 @@ function CategoryGrid() {
       img: "https://source.unsplash.com/800x600/?boots,leather,brown"
     },
     {
-      name: "Joyería",
+      name: "Joyería", 
       href: "/catalog?category=Joyería",
       img: "https://source.unsplash.com/800x600/?ring,silver,minimal"
     }
@@ -154,18 +171,20 @@ function CategoryGrid() {
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cats.map((c) => (
+        {displayCategories.map((c) => (
           <Link
             key={c.name}
             to={c.href}
             className="relative overflow-hidden rounded-xl border border-stone-700/50 group"
           >
             <img
-              src={c.img}
+              src={c.image || c.img}
               alt={c.name}
               loading="lazy"
               referrerPolicy="no-referrer"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG }}
+              onError={(e) => { 
+                (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800x600/1a1a1a/666666?text=Imagen+No+Disponible" 
+              }}
               className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] bg-stone-800"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
