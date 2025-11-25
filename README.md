@@ -41,6 +41,7 @@ Esta guía te explica cómo configurar, instalar las dependencias y ejecutar el 
     ```bash
     https://nodejs.org/en/download
     ```
+    
 ---
 
 ### 📦 Paso 1: Apertura y Ubicación
