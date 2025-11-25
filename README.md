@@ -32,4 +32,52 @@ El propósito de este sistema es **aplicar los principios de la Ingeniería de R
 
 ---
  
-## ⚙️ Instalación y ejecución
+## 🖥️ Guía de Inicio Rápido del Frontend (React)
+
+Esta guía te explica cómo configurar, instalar las dependencias y ejecutar el proyecto de React en tu entorno de desarrollo local.
+
+> **Requisito:** Asegúrate de tener instalado **Node.js** y **npm** (Node Package Manager).
+
+---
+
+### 📦 Paso 1: Apertura y Ubicación
+
+1.  **Abre la Carpeta:** Navega hasta la carpeta raíz del proyecto de **Frontend**.
+2.  **Abre la Terminal:** Abre una nueva terminal o línea de comandos **dentro de esta carpeta**.
+    * *Sugerencia:* Si usas Visual Studio Code, puedes abrir la terminal con `Ctrl + \``.
+
+---
+
+### 🛠️ Paso 2: Instalación de Dependencias
+
+Es necesario descargar y enlazar todas las librerías que el proyecto de React necesita para funcionar, las cuales están listadas en el archivo `package.json`.
+
+* **Comando de Instalación:**
+
+    ```bash
+    npm install
+    ```
+
+    * **Resultado:** Este comando descarga las librerías y las guarda en una carpeta llamada `node_modules`.
+
+---
+
+### 🟢 Paso 3: Ejecución del Proyecto
+
+Una vez que todas las dependencias están listas, puedes iniciar el servidor de desarrollo local.
+
+1.  **Comando para Iniciar el Servidor:**
+
+    ```bash
+    npm run dev
+    ```
+
+2.  **Acceso a la Aplicación:**
+    El comando compilará el proyecto y, por lo general, abrirá automáticamente la aplicación en tu navegador.
+    * **Dirección Local:** La aplicación se ejecutará en una dirección similar a `http://localhost:3000`.
+
+---
+
+### 🛑 Para Detener la Ejecución
+
+Cuando termines de trabajar, vuelve a la terminal donde se está ejecutando el servidor y presiona **`Ctrl + C`**.
