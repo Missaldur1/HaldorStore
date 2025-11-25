@@ -38,6 +38,9 @@ Esta guía te explica cómo configurar, instalar las dependencias y ejecutar el 
 
 > **Requisito:** Asegúrate de tener instalado **Node.js** y **npm** (Node Package Manager).
 
+    ```bash
+    https://nodejs.org/en/download
+    ```
 ---
 
 ### 📦 Paso 1: Apertura y Ubicación
