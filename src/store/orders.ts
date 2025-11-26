@@ -18,6 +18,7 @@ export type Order = {
     city?: string
     region?: string
     zip?: string
+    reference?: string   // 👈 AGREGAR ESTA LÍNEA
   }
   payment: {
     transactionId: string

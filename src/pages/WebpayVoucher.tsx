@@ -3,13 +3,14 @@ import { useWebpay } from "@/store/webpay"
 import { useOrders } from "@/store/orders"
 import { useCart } from "@/store/cart"
 import webpayLogo from "@/assets/1.WebpayPlus_FB_800px.svg"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 export default function WebPayVoucher() {
   const [params] = useSearchParams()
+
   const wp = useWebpay()
-  const addOrder = useOrders(s => s.create)
-  const clearCart = useCart(s => s.clear)
+  const addOrder = useOrders((s) => s.create)
+  const clearCart = useCart((s) => s.clear)
 
   const tx = params.get("tx")
   const failed = params.get("failed")
@@ -21,13 +22,18 @@ export default function WebPayVoucher() {
       ? amountFromParams
       : wp.amount) || 0
 
-  // Crear orden SOLO si está aprobado
+  // ---------------------------------------------------------
+  // 🔥 FIX ANTI-DUPLICADO
+  // ---------------------------------------------------------
+  const [orderCreated, setOrderCreated] = useState(false)
+
   useEffect(() => {
+    if (orderCreated) return   // ⛔ Evita segunda ejecución
+
     if (!failed && tx && wp.items.length > 0) {
       const subtotal = wp.items.reduce((a, it) => a + it.price * it.qty, 0)
       const total = effectiveAmount || subtotal
       const shipping = Math.max(0, total - subtotal)
-
       const orderId = "ORD-" + Date.now().toString(36).toUpperCase()
 
       addOrder({
@@ -49,13 +55,15 @@ export default function WebPayVoucher() {
 
       clearCart()
       wp.clear()
+      setOrderCreated(true)  // ⛔ Marca como creada
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [failed, tx])
+  }, [failed, tx, wp.items])
 
   return (
     <div className="min-h-screen bg-white flex justify-center p-6">
       <div className="w-full max-w-lg border rounded-xl shadow p-6 space-y-6 bg-white">
+        
         {/* Logo WebPay */}
         <img src={webpayLogo} alt="WebPay Plus" className="h-10 mx-auto" />
 

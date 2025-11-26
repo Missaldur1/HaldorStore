@@ -1,15 +1,15 @@
 // src/pages/OrderReceipt.tsx
-import { Link, useParams } from "react-router-dom"
-import { useOrders } from "@/store/orders"
-import { ArrowLeft } from "lucide-react"
-import { usePageTitle } from "@/hooks/useDocumentTitle"
+import { Link, useParams } from "react-router-dom";
+import { useOrders } from "@/store/orders";
+import { ArrowLeft } from "lucide-react";
+import { usePageTitle } from "@/hooks/useDocumentTitle";
 
 export default function OrderReceipt() {
-  usePageTitle("Detalle del pedido")
+  usePageTitle("Detalle del pedido");
 
-  const { id } = useParams()
-  const orders = useOrders((s) => s.orders)
-  const order = orders[id as string]
+  const { id } = useParams();
+  const orders = useOrders((s) => s.orders);
+  const order = orders[id as string];
 
   if (!order) {
     return (
@@ -19,11 +19,12 @@ export default function OrderReceipt() {
           Volver a mis pedidos
         </Link>
       </section>
-    )
+    );
   }
 
   return (
     <section className="space-y-6">
+
       {/* Botón volver */}
       <div>
         <Link
@@ -37,7 +38,9 @@ export default function OrderReceipt() {
 
       <h1 className="text-2xl font-extrabold tracking-tight">Gracias por tu compra</h1>
 
-      <div className="rounded-2xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 to-slate-900/70 p-6 space-y-5">
+      <div className="rounded-2xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 
+                      to-slate-900/70 p-6 space-y-5">
+
         {/* Header */}
         <div>
           <div className="text-sm text-stone-300/90">
@@ -46,6 +49,28 @@ export default function OrderReceipt() {
           <div className="text-xs text-stone-400">
             {new Date(order.createdAt).toLocaleString()}
           </div>
+        </div>
+
+        {/* Dirección de entrega */}
+        <div className="p-4 rounded-lg bg-stone-800/50 border border-stone-700/50">
+          <h3 className="text-sm font-semibold text-stone-200 mb-2">
+            Dirección de entrega
+          </h3>
+
+          <p className="text-stone-300 text-sm">
+            {order.customer?.address ?? "Sin dirección"}
+          </p>
+
+          <p className="text-stone-400 text-xs mt-1">
+            {(order.customer?.city ?? "Ciudad no registrada")},{" "}
+            {order.customer?.region ?? "Región no registrada"}
+          </p>
+
+          {order.customer?.reference && (
+            <p className="text-stone-500 text-xs mt-1">
+              Referencia: {order.customer.reference}
+            </p>
+          )}
         </div>
 
         {/* Lista de productos */}
@@ -85,28 +110,31 @@ export default function OrderReceipt() {
 
         {/* Información de pago */}
         <div className="text-sm text-stone-400 pt-2">
-          Transacción: <b>{order.payment.transactionId}</b> · Método: Tarjeta **** {order.payment.last4}
+          Transacción: <b>{order.payment.transactionId}</b> · Método: Tarjeta ****{" "}
+          {order.payment.last4}
         </div>
 
         {/* Botones */}
         <div className="flex gap-3 mt-4">
           <Link
             to="/catalog"
-            className="flex-1 h-10 rounded-lg bg-amber-500 text-black text-sm font-semibold inline-flex items-center justify-center hover:brightness-95"
+            className="flex-1 h-10 rounded-lg bg-amber-500 text-black text-sm font-semibold 
+                       inline-flex items-center justify-center hover:brightness-95"
           >
             Seguir comprando
           </Link>
-
           <Link
             to="/"
-            className="flex-1 h-10 rounded-lg border border-stone-700/60 text-sm inline-flex items-center justify-center hover:bg-white/10"
+            className="flex-1 h-10 rounded-lg border border-stone-700/60 text-sm inline-flex
+                       items-center justify-center hover:bg-white/10"
           >
             Ir al inicio
           </Link>
         </div>
+
       </div>
     </section>
-  )
+  );
 }
 
 /* Helper */
@@ -116,5 +144,5 @@ function Row({ k, v }: { k: string; v: string }) {
       <span>{k}</span>
       <span>{v}</span>
     </div>
-  )
+  );
 }
