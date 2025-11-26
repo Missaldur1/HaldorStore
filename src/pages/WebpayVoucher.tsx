@@ -3,11 +3,10 @@ import { useWebpay } from "@/store/webpay"
 import { useOrders } from "@/store/orders"
 import { useCart } from "@/store/cart"
 import webpayLogo from "@/assets/1.WebpayPlus_FB_800px.svg"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 export default function WebPayVoucher() {
   const [params] = useSearchParams()
-
   const wp = useWebpay()
   const addOrder = useOrders((s) => s.create)
   const clearCart = useCart((s) => s.clear)
@@ -15,51 +14,59 @@ export default function WebPayVoucher() {
   const tx = params.get("tx")
   const failed = params.get("failed")
 
-  // 🔹 Intentamos primero con el param, si no, usamos el store
+  // Intentar leer monto desde URL (simulación)
   const amountFromParams = Number(params.get("amount") ?? "0")
   const effectiveAmount =
     (!Number.isNaN(amountFromParams) && amountFromParams > 0
       ? amountFromParams
       : wp.amount) || 0
 
-  // ---------------------------------------------------------
-  // 🔥 FIX ANTI-DUPLICADO
-  // ---------------------------------------------------------
-  const [orderCreated, setOrderCreated] = useState(false)
-
+  /* ============================================================
+        FIX ANTI-DUPLICADOS — A PRUEBA DE TODO
+  ============================================================ */
   useEffect(() => {
-    if (orderCreated) return   // ⛔ Evita segunda ejecución
+    // Si no hay transacción o está fallida, no crear orden
+    if (!tx || failed) return
 
-    if (!failed && tx && wp.items.length > 0) {
-      const subtotal = wp.items.reduce((a, it) => a + it.price * it.qty, 0)
-      const total = effectiveAmount || subtotal
-      const shipping = Math.max(0, total - subtotal)
-      const orderId = "ORD-" + Date.now().toString(36).toUpperCase()
+    // Evita duplicación: si esta transacción YA fue procesada → no repetir
+    const lastTx = localStorage.getItem("wp_last_tx")
+    if (lastTx === tx) return
 
-      addOrder({
-        id: orderId,
-        createdAt: Date.now(),
-        currency: "CLP",
-        items: wp.items,
-        subtotal,
-        shipping,
-        total,
-        customer: wp.customer,
-        payment: {
-          transactionId: tx || "TXN-UNKNOWN",
-          method: "card",
-          last4: "0000",
-        },
-        status: "paid",
-      })
+    // Crear orden
+    const subtotal = wp.items.reduce((a, it) => a + it.price * it.qty, 0)
+    const total = effectiveAmount || subtotal
+    const shipping = Math.max(0, total - subtotal)
 
-      clearCart()
-      wp.clear()
-      setOrderCreated(true)  // ⛔ Marca como creada
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [failed, tx, wp.items])
+    const orderId = "ORD-" + Date.now().toString(36).toUpperCase()
 
+    addOrder({
+      id: orderId,
+      createdAt: Date.now(),
+      currency: "CLP",
+      items: wp.items,
+      subtotal,
+      shipping,
+      total,
+      customer: wp.customer,
+      payment: {
+        transactionId: tx,
+        method: "card",
+        last4: "0000",
+      },
+      status: "paid",
+    })
+
+    // Marcar la transacción como ya procesada
+    localStorage.setItem("wp_last_tx", tx)
+
+    // Limpiar datos temporales
+    clearCart()
+    wp.clear()
+  }, [tx, failed]) // Solo depende de tx y failed, nada más.
+
+  /* ============================================================
+        UI
+  ============================================================ */
   return (
     <div className="min-h-screen bg-white flex justify-center p-6">
       <div className="w-full max-w-lg border rounded-xl shadow p-6 space-y-6 bg-white">
@@ -72,7 +79,7 @@ export default function WebPayVoucher() {
           {failed ? "Pago Rechazado" : "Voucher de Pago"}
         </h1>
 
-        {/* Detalle */}
+        {/* Detalle del voucher */}
         <div className="rounded-lg border p-4 bg-gray-50 space-y-3 text-sm text-gray-700">
           <div className="flex justify-between">
             <span className="font-medium">Monto</span>
@@ -83,7 +90,13 @@ export default function WebPayVoucher() {
 
           <div className="flex justify-between">
             <span className="font-medium">Estado</span>
-            <span className={failed ? "text-red-600 font-bold" : "text-green-600 font-bold"}>
+            <span
+              className={
+                failed
+                  ? "text-red-600 font-bold"
+                  : "text-green-600 font-bold"
+              }
+            >
               {failed ? "Rechazado" : "Aprobado"}
             </span>
           </div>
