@@ -102,22 +102,25 @@ export default function Checkout() {
   /* ============================================================
       LOAD DATA
   ============================================================= */
+  // Si hay usuario → cargar direcciones
   useEffect(() => {
-    if (!user) return
+    if (user) {
+      listAddresses().then((data) => {
+        setAddresses(data)
+        const def = data.find((a) => a.is_default)
+        if (def) setSelectedAddress(def.id)
+      })
+    }
 
-    listAddresses().then((data) => {
-      setAddresses(data)
-      const def = data.find((a) => a.is_default)
-      if (def) setSelectedAddress(def.id)
-    })
-
+    // Siempre cargar regiones aunque no haya usuario
     listRegions().then(setRegions)
   }, [user])
 
   useEffect(() => {
-    if (!regionId) return
-    listProvinces(regionId).then(setProvinces)
-  }, [regionId])
+    if (!user) {
+      setSelectedAddress("new")
+    }
+  }, [user])
 
   useEffect(() => {
     if (!provinceId) return
