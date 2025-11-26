@@ -1,21 +1,17 @@
 import { useMemo, useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "@/store/cart"
-import { useOrders } from "@/store/orders"
 import { useWebpay } from "@/store/webpay"
 import { useAuthStore } from "@/store/authStore"
 import { usePageTitle } from "@/hooks/useDocumentTitle"
 import { Lock } from "lucide-react"
-
 import {
   listAddresses,
   listRegions,
   listProvinces,
   listCommunes,
 } from "@/services/locationService"
-
 import CustomSelect from "@/components/CustomSelect"
-
 
 /* ============================================================
     RADIO CHIP (para método de envío)
@@ -47,7 +43,6 @@ function RadioChip({
   )
 }
 
-
 /* ============================================================
     CHECKOUT COMPLETO — MODO 1
 ============================================================ */
@@ -64,10 +59,9 @@ export default function Checkout() {
   const shipping = shipMethod === "standard" ? 3990 : 6990
   const total = subtotal + (items.length ? shipping : 0)
 
-
   /* ============================================================
       DIRECCIONES
-  ============================================================= */
+   ============================================================= */
   const [addresses, setAddresses] = useState<any[]>([])
   const [selectedAddress, setSelectedAddress] = useState<number | "new" | null>(null)
 
@@ -78,15 +72,15 @@ export default function Checkout() {
   const [regionId, setRegionId] = useState<number | null>(null)
   const [provinceId, setProvinceId] = useState<number | null>(null)
   const [communeId, setCommuneId] = useState<number | null>(null)
+
   const [street, setStreet] = useState("")
   const [number, setNumber] = useState("")
   const [apartment, setApartment] = useState("")
   const [reference, setReference] = useState("")
 
-
   /* ============================================================
       USER DATA
-  ============================================================= */
+   ============================================================= */
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
 
@@ -98,11 +92,11 @@ export default function Checkout() {
     }
   }, [user])
 
-
   /* ============================================================
       LOAD DATA
-  ============================================================= */
-  // Si hay usuario → cargar direcciones
+   ============================================================= */
+
+  // Cargar direcciones si hay usuario + cargar regiones siempre
   useEffect(() => {
     if (user) {
       listAddresses().then((data) => {
@@ -110,44 +104,64 @@ export default function Checkout() {
         const def = data.find((a) => a.is_default)
         if (def) setSelectedAddress(def.id)
       })
+    } else {
+      // Invitado → por defecto "nueva dirección"
+      setSelectedAddress("new")
     }
 
-    // Siempre cargar regiones aunque no haya usuario
+    // Regiones siempre se cargan
     listRegions().then(setRegions)
   }, [user])
 
+  // Cuando cambia la región → cargar provincias
   useEffect(() => {
-    if (!user) {
-      setSelectedAddress("new")
+    if (!regionId) {
+      setProvinces([])
+      setProvinceId(null)
+      setCommunes([])
+      setCommuneId(null)
+      return
     }
-  }, [user])
 
+    listProvinces(regionId).then(setProvinces)
+    setProvinceId(null)
+    setCommuneId(null)
+  }, [regionId])
+
+  // Cuando cambia la provincia → cargar comunas
   useEffect(() => {
-    if (!provinceId) return
-    listCommunes(provinceId).then(setCommunes)
-  }, [provinceId])
+    if (!provinceId) {
+      setCommunes([])
+      setCommuneId(null)
+      return
+    }
 
+    listCommunes(provinceId).then(setCommunes)
+    setCommuneId(null)
+  }, [provinceId])
 
   /* ============================================================
       VALIDACIÓN
-  ============================================================= */
+   ============================================================= */
   const disabled = useMemo(() => {
     if (!name || !email || items.length === 0) return true
 
+    // Si usa dirección guardada → OK
     if (selectedAddress && selectedAddress !== "new") return false
 
+    // Si es nueva dirección → validar
     return !street || !number || !regionId || !provinceId || !communeId
   }, [name, email, items.length, selectedAddress, street, number, regionId, provinceId, communeId])
 
-
   /* ============================================================
       PAGO
-  ============================================================= */
+   ============================================================= */
   function handlePay() {
     let finalAddress: any = {}
 
     if (selectedAddress !== "new") {
       const addr = addresses.find((a) => a.id === selectedAddress)
+
       finalAddress = {
         address: `${addr.street} ${addr.number}`,
         city: addr.commune.name,
@@ -177,10 +191,9 @@ export default function Checkout() {
     navigate("/webpay/init")
   }
 
-
   /* ============================================================
       SI EL CARRITO ESTÁ VACÍO
-  ============================================================= */
+   ============================================================= */
   if (items.length === 0) {
     return (
       <section className="rounded-2xl border border-stone-700/50 bg-stone-900/70 p-6 text-center">
@@ -195,22 +208,16 @@ export default function Checkout() {
     )
   }
 
-
   /* ============================================================
-      ESTILO COMPARTIDO PARA LOS RADIOS
-  ============================================================= */
+      PANTALLA PRINCIPAL
+   ============================================================= */
   const radioStyle =
     "flex items-center gap-3 p-3 rounded-lg bg-stone-800/60 border border-stone-700/60 hover:bg-stone-700/40 cursor-pointer transition"
 
-
-  /* ============================================================
-      PANTALLA PRINCIPAL
-  ============================================================= */
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr,380px]">
       <div className="space-y-6">
         <Box title="Datos de envío">
-
           {/* Nombre + Email */}
           <div className="grid sm:grid-cols-2 gap-3">
             <Input label="Nombre" value={name} onChange={setName} required />
@@ -221,7 +228,6 @@ export default function Checkout() {
           <h3 className="text-sm font-semibold mt-4 text-stone-300">Dirección de entrega</h3>
 
           <div className="mt-3 p-3 rounded-xl bg-stone-900/40 border border-stone-800 space-y-3">
-
             {/* DIRECCIONES GUARDADAS */}
             {addresses.length > 0 && (
               <div className="space-y-2">
@@ -256,7 +262,6 @@ export default function Checkout() {
               />
               <span className="text-stone-300">Ingresar nueva dirección</span>
             </label>
-
           </div>
 
           {/* FORMULARIO NUEVA DIRECCIÓN */}
@@ -294,7 +299,6 @@ export default function Checkout() {
             </div>
           )}
 
-
           {/* COSTO DE ENVÍO */}
           <div className="mt-5">
             <div className="text-xs text-stone-400 mb-1">Envío</div>
@@ -311,10 +315,8 @@ export default function Checkout() {
               />
             </div>
           </div>
-
         </Box>
       </div>
-
 
       {/* RESUMEN */}
       <aside className="h-fit rounded-2xl border border-stone-700/50 bg-stone-900/70 p-4 space-y-3">
@@ -348,7 +350,6 @@ export default function Checkout() {
   )
 }
 
-
 /* ============================================================
     COMPONENTES BASE
 ============================================================ */
@@ -377,7 +378,6 @@ function Input(props: {
       <div className="text-xs text-stone-400 mb-1">
         {label} {required && "*"}
       </div>
-
       <input
         type={type}
         value={value}
