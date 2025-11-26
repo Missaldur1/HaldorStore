@@ -518,26 +518,28 @@ function ContactSection() {
       </h2>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Mapa */}
+        {/* Mapa con Google Maps */}
         <div className="overflow-hidden rounded-xl border border-stone-700/50 bg-stone-900/60">
           <div className="aspect-[16/9]">
             <iframe
-              title="Mapa HaldorStore - Santiago, Chile"
-              src={mapSrc}
-              className="size-full"
+              title="Mapa Duoc UC - Alonso de Ovalle"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3329.089208310567!2d-70.66055162343588!3d-33.44698229733601!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662c507f91be917%3A0xcfac72a68dd4b986!2sDuoc%20UC%20-%20Sede%20Padre%20Alonso%20de%20Ovalle!5e0!3m2!1ses!2scl!4v1764190575215!5m2!1ses!2scl"
+              className="w-full h-full border-0"
               loading="lazy"
-              referrerPolicy="no-referrer"
-            />
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
+
           <div className="p-3 text-xs text-stone-300/80">
             Ver en{" "}
             <a
-              href="https://www.openstreetmap.org/?mlat=-33.45&mlon=-70.65#map=12/-33.45/-70.65"
+              href="https://maps.google.com/?q=Duoc+UC+Padre+Alonso+de+Ovalle"
               target="_blank"
               rel="noreferrer"
               className="underline hover:text-amber-300"
             >
-              OpenStreetMap
+              Google Maps
             </a>
           </div>
         </div>
