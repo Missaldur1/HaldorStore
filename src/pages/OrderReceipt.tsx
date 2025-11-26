@@ -15,16 +15,20 @@ export default function OrderReceipt() {
     return (
       <section className="text-center py-10">
         <p className="text-stone-300 mb-3">Pedido no encontrado.</p>
-        <Link to="/orders" className="text-amber-400 hover:text-amber-300 underline">
+        <Link
+          to="/orders"
+          className="text-amber-400 hover:text-amber-300 underline"
+        >
           Volver a mis pedidos
         </Link>
       </section>
     );
   }
 
+  const cust = order.customer;
+
   return (
     <section className="space-y-6">
-
       {/* Botón volver */}
       <div>
         <Link
@@ -36,12 +40,15 @@ export default function OrderReceipt() {
         </Link>
       </div>
 
-      <h1 className="text-2xl font-extrabold tracking-tight">Gracias por tu compra</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight">
+        Gracias por tu compra
+      </h1>
 
-      <div className="rounded-2xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 
-                      to-slate-900/70 p-6 space-y-5">
+      <div className="rounded-2xl border border-stone-700/50 bg-gradient-to-b from-stone-900/70 to-slate-900/70 p-6 space-y-5">
 
-        {/* Header */}
+        {/* ============================
+            HEADER
+        ============================ */}
         <div>
           <div className="text-sm text-stone-300/90">
             Orden <span className="font-semibold">{order.id}</span>
@@ -51,29 +58,56 @@ export default function OrderReceipt() {
           </div>
         </div>
 
-        {/* Dirección de entrega */}
+        {/* ============================
+            DATOS DEL CLIENTE
+        ============================ */}
+        <div className="p-4 rounded-lg bg-stone-800/50 border border-stone-700/50 space-y-2">
+          <h3 className="text-sm font-semibold text-stone-200 mb-1">
+            Datos del cliente
+          </h3>
+
+          <p className="text-stone-300 text-sm">
+            <span className="font-medium">Nombre:</span> {cust.name}
+          </p>
+
+          <p className="text-stone-300 text-sm">
+            <span className="font-medium">Email:</span> {cust.email}
+          </p>
+
+          {cust.phone && (
+            <p className="text-stone-300 text-sm">
+              <span className="font-medium">Teléfono:</span> {cust.phone}
+            </p>
+          )}
+        </div>
+
+        {/* ============================
+            DIRECCIÓN DE ENTREGA
+        ============================ */}
         <div className="p-4 rounded-lg bg-stone-800/50 border border-stone-700/50">
           <h3 className="text-sm font-semibold text-stone-200 mb-2">
             Dirección de entrega
           </h3>
 
           <p className="text-stone-300 text-sm">
-            {order.customer?.address ?? "Sin dirección"}
+            {cust.address ?? "Sin dirección"}
           </p>
 
           <p className="text-stone-400 text-xs mt-1">
-            {(order.customer?.city ?? "Ciudad no registrada")},{" "}
-            {order.customer?.region ?? "Región no registrada"}
+            {cust.city ?? "Ciudad no registrada"},{" "}
+            {cust.region ?? "Región no registrada"}
           </p>
 
-          {order.customer?.reference && (
+          {cust.reference && (
             <p className="text-stone-500 text-xs mt-1">
-              Referencia: {order.customer.reference}
+              Referencia: {cust.reference}
             </p>
           )}
         </div>
 
-        {/* Lista de productos */}
+        {/* ============================
+            LISTA DE PRODUCTOS
+        ============================ */}
         <div className="space-y-3">
           {order.items.map((item: any) => (
             <Link
@@ -97,18 +131,19 @@ export default function OrderReceipt() {
           ))}
         </div>
 
-        {/* Subtotal / envío / total */}
+        {/* Subtotales */}
         <div className="space-y-1 text-sm">
           <Row k="Subtotal" v={`$${order.subtotal.toLocaleString("es-CL")}`} />
           <Row k="Envío" v={`$${order.shipping.toLocaleString("es-CL")}`} />
         </div>
 
+        {/* Total */}
         <div className="border-t border-stone-700/60 pt-3 flex justify-between font-semibold">
           <span>Total pagado</span>
           <span>${order.total.toLocaleString("es-CL")}</span>
         </div>
 
-        {/* Información de pago */}
+        {/* Pago */}
         <div className="text-sm text-stone-400 pt-2">
           Transacción: <b>{order.payment.transactionId}</b> · Método: Tarjeta ****{" "}
           {order.payment.last4}
@@ -118,20 +153,17 @@ export default function OrderReceipt() {
         <div className="flex gap-3 mt-4">
           <Link
             to="/catalog"
-            className="flex-1 h-10 rounded-lg bg-amber-500 text-black text-sm font-semibold 
-                       inline-flex items-center justify-center hover:brightness-95"
+            className="flex-1 h-10 rounded-lg bg-amber-500 text-black text-sm font-semibold inline-flex items-center justify-center hover:brightness-95"
           >
             Seguir comprando
           </Link>
           <Link
             to="/"
-            className="flex-1 h-10 rounded-lg border border-stone-700/60 text-sm inline-flex
-                       items-center justify-center hover:bg-white/10"
+            className="flex-1 h-10 rounded-lg border border-stone-700/60 text-sm inline-flex items-center justify-center hover:bg-white/10"
           >
             Ir al inicio
           </Link>
         </div>
-
       </div>
     </section>
   );
